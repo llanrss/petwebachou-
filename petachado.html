@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PetAchado — Animais Perdidos em Joinville/SC</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Nunito+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #e8406a;
+  --primary-light: #f06b8a;
+  --primary-dark: #c0254f;
+  --bg: #f7f7f8;
+  --white: #ffffff;
+  --text: #1a1a2e;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --radius: 12px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-hover: 0 8px 32px rgba(232,64,106,0.18);
+  --error: #dc2626;
+  --error-bg: #fee2e2;
+  --success: #059669;
+  --success-bg: #d1fae5;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.header-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: 64px; gap: 20px;
+}
+.logo {
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; flex-shrink: 0;
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+}
+.logo-text {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900; font-size: 1.35rem;
+  color: var(--text);
+}
+.logo-text span { color: var(--primary); }
+
+/* BUG06 FIX – busca funcional com evento real */
+.header-search {
+  flex: 1; max-width: 420px;
+  position: relative;
+}
+.header-search input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 9px 18px 9px 40px;
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 0.88rem; color: var(--text);
+  outline: none; transition: border-color .2s;
+}
+.header-search input:focus { border-color: var(--primary); }
+.header-search .search-icon {
+  position: absolute; left: 14px; top: 50%;
+  transform: translateY(-50%); color: var(--muted); font-size: 0.9rem;
+  cursor: pointer; pointer-events: auto;
+}
+.header-nav { display: flex; align-items: center; gap: 6px; }
+.nav-btn {
+  padding: 8px 16px; border-radius: 8px;
+  font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.82rem;
+  cursor: pointer; border: none; transition: all .2s; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+/* BUG06 FIX – botões Encontrados/Perdidos são filtros reais */
+.nav-btn-ghost { background: transparent; color: var(--muted); }
+.nav-btn-ghost:hover { background: var(--bg); color: var(--text); }
+.nav-btn-ghost.active { background: var(--bg); color: var(--primary); font-weight: 800; }
+.nav-btn-primary { background: var(--primary); color: #fff; }
+.nav-btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(232,64,106,0.3); }
+
+/* ── BREADCRUMB ── */
+.breadcrumb-bar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+}
+.breadcrumb-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; align-items: center; gap: 6px;
+  height: 38px; font-size: 0.8rem; color: var(--muted);
+}
+.breadcrumb-inner a { color: var(--muted); text-decoration: none; }
+.breadcrumb-inner a:hover { color: var(--primary); }
+.breadcrumb-inner .sep { color: var(--border); }
+.breadcrumb-inner .current { color: var(--text); font-weight: 600; }
+
+/* ── HERO BANNER ── */
+.hero-banner {
+  background: linear-gradient(135deg, var(--primary) 0%, #c0254f 60%, #9b1942 100%);
+  padding: 22px 24px;
+}
+.hero-banner-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.hero-banner h1 {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900; font-size: 1.35rem; color: #fff;
+}
+.hero-banner h1 strong { font-style: italic; }
+
+/* ── MODAL CIDADE ── */
+.city-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+.city-modal-backdrop.open { opacity: 1; pointer-events: all; }
+.city-modal {
+  background: var(--white); border-radius: 20px;
+  max-width: 420px; width: 100%;
+  transform: scale(0.92) translateY(20px);
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+.city-modal-backdrop.open .city-modal { transform: scale(1) translateY(0); }
+.city-modal-header {
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.city-modal-header h3 {
+  font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1rem;
+}
+.city-modal-body { padding: 20px 24px; }
+.city-modal-body label {
+  display: block; font-size: 0.78rem; font-weight: 700;
+  color: var(--muted); text-transform: uppercase; letter-spacing: .04em;
+  margin-bottom: 8px;
+}
+.city-modal-body input {
+  width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 10px 13px; font-family: 'Nunito Sans', sans-serif;
+  font-size: 0.9rem; outline: none; transition: border-color .2s;
+}
+.city-modal-body input:focus { border-color: var(--primary); }
+.city-presets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.city-preset-btn {
+  padding: 6px 14px; border-radius: 999px;
+  border: 1.5px solid var(--border); background: var(--bg);
+  font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.78rem;
+  color: var(--muted); cursor: pointer; transition: all .18s;
+}
+.city-preset-btn:hover { border-color: var(--primary); color: var(--primary); }
+.city-modal-footer {
+  padding: 16px 24px; border-top: 1px solid var(--border);
+  display: flex; gap: 10px; justify-content: flex-end;
+}
+
+.btn-trocar {
+  background: rgba(255,255,255,0.22);
+  border: 1.5px solid rgba(255,255,255,0.5);
+  color: #fff; padding: 7px 18px; border-radius: 8px;
+  font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.82rem;
+  cursor: pointer; transition: all .2s; white-space: nowrap;
+}
+.btn-trocar:hover { background: rgba(255,255,255,0.32); }
+
+/* ── MAIN LAYOUT ── */
+.main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 24px; flex-wrap: wrap;
+  box-shadow: var(--shadow);
+}
+.filter-chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+
+/* BUG01 FIX – chips de espécie são exclusivos entre si (cão/gato),
+   chips de sexo são exclusivos entre si (macho/fêmea),
+   chips de status são exclusivos entre si (perdido/encontrado) */
+.chip {
+  display: flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--white); color: var(--muted);
+  font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.8rem;
+  cursor: pointer; transition: all .18s; user-select: none;
+}
+.chip:hover { border-color: var(--primary); color: var(--primary); }
+.chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.chip .chip-icon { font-size: 1rem; }
+
+.filter-selects { display: flex; gap: 8px; align-items: center; }
+select.fsel {
+  border: 1.5px solid var(--border); background: var(--white);
+  border-radius: 8px; padding: 7px 30px 7px 12px;
+  font-family: 'Nunito', sans-serif; font-weight: 600; font-size: 0.8rem;
+  color: var(--text); outline: none; cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+  transition: border-color .2s;
+}
+select.fsel:focus { border-color: var(--primary); }
+.btn-filtrar {
+  background: var(--primary); color: #fff;
+  border: none; padding: 8px 20px; border-radius: 8px;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.82rem;
+  cursor: pointer; transition: all .2s;
+}
+.btn-filtrar:hover { background: var(--primary-dark); }
+.btn-limpar {
+  background: transparent; color: var(--muted);
+  border: 1.5px solid var(--border); padding: 8px 14px; border-radius: 8px;
+  font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.82rem;
+  cursor: pointer; transition: all .2s;
+}
+.btn-limpar:hover { border-color: var(--primary); color: var(--primary); }
+
+/* ── RESULTS INFO ── */
+.results-info {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px; flex-wrap: wrap; gap: 10px;
+}
+.results-count { font-size: 0.88rem; color: var(--muted); }
+.results-count strong { color: var(--text); font-weight: 700; }
+.view-toggle { display: flex; gap: 4px; }
+.vtbtn {
+  width: 32px; height: 32px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 0.85rem; color: var(--muted);
+  transition: all .2s;
+}
+.vtbtn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.vtbtn:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+
+/* ── PET GRID ── */
+.pet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
+  gap: 20px;
+  transition: all .3s;
+}
+
+/* BUG05 FIX – modo lista real */
+.pet-grid.list-view {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.pet-grid.list-view .pet-card {
+  flex-direction: row;
+  height: 120px;
+}
+.pet-grid.list-view .pet-card-img {
+  width: 120px; min-width: 120px;
+  aspect-ratio: unset; height: 100%;
+  border-radius: 0;
+  font-size: 2.5rem;
+}
+.pet-grid.list-view .pet-card-body {
+  flex: 1;
+  padding: 12px 16px;
+  gap: 4px;
+}
+.pet-grid.list-view .pet-card-footer {
+  border-top: none;
+  border-left: 1px solid var(--border);
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  min-width: 140px;
+}
+
+.pet-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow .25s, transform .25s;
+  display: flex; flex-direction: column;
+}
+.pet-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-4px); }
+.pet-grid.list-view .pet-card:hover { transform: translateY(-2px); }
+
+.pet-card-img {
+  width: 100%; aspect-ratio: 4/3;
+  background: #f0f0f0;
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 4rem;
+}
+.pet-card-img .pet-emoji { transition: transform .3s; }
+.pet-card:hover .pet-card-img .pet-emoji { transform: scale(1.1); }
+.pet-card-img .badge-status {
+  position: absolute; top: 10px; left: 10px;
+  padding: 4px 10px; border-radius: 999px;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.7rem;
+  letter-spacing: .04em; text-transform: uppercase;
+}
+.badge-lost { background: #fee2e2; color: #dc2626; }
+.badge-found { background: #d1fae5; color: #059669; }
+.pet-card-img .badge-new {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--primary); color: #fff;
+  padding: 3px 9px; border-radius: 999px;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.68rem;
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.heart-btn {
+  position: absolute; bottom: 10px; right: 10px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.9); border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; cursor: pointer;
+  transition: all .2s; opacity: 0;
+}
+.pet-card:hover .heart-btn { opacity: 1; }
+.heart-btn:hover { background: var(--primary); }
+.heart-btn.liked { opacity: 1; }
+
+.pet-card-body { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.pet-card-name {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900; font-size: 1.05rem; color: var(--text);
+}
+.pet-card-meta {
+  font-size: 0.8rem; color: var(--muted); font-weight: 500;
+  display: flex; gap: 4px; align-items: center; flex-wrap: wrap;
+}
+.meta-sep { color: var(--border); }
+.pet-card-desc {
+  font-size: 0.83rem; color: var(--muted); line-height: 1.55;
+  display: -webkit-box; -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical; overflow: hidden;
+  flex: 1;
+}
+.pet-card-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pet-location { font-size: 0.76rem; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+.btn-ver {
+  background: var(--primary); color: #fff;
+  border: none; padding: 6px 14px; border-radius: 8px;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.75rem;
+  cursor: pointer; transition: all .2s;
+}
+.btn-ver:hover { background: var(--primary-dark); }
+
+/* pet card color backgrounds */
+.bg-warm { background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%); }
+.bg-rose { background: linear-gradient(135deg, #fecdd3 0%, #fda4af 100%); }
+.bg-sky { background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%); }
+.bg-mint { background: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%); }
+.bg-lavender { background: linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%); }
+.bg-peach { background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%); }
+.bg-gray { background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%); }
+.bg-blue { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); }
+
+/* ── MODAL CADASTRO ── */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+.modal-backdrop.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--white); border-radius: 20px;
+  max-width: 560px; width: 100%;
+  max-height: 90vh; overflow-y: auto;
+  transform: scale(0.92) translateY(20px);
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+}
+.modal-backdrop.open .modal { transform: scale(1) translateY(0); }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+}
+.modal-title {
+  font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1.1rem;
+}
+.modal-close {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--bg);
+  cursor: pointer; font-size: 1rem; display: flex;
+  align-items: center; justify-content: center;
+  transition: all .2s;
+}
+.modal-close:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+.modal-body { padding: 24px; }
+.modal-tabs {
+  display: flex; background: var(--bg);
+  border-radius: 10px; padding: 4px; gap: 4px; margin-bottom: 22px;
+}
+.modal-tab {
+  flex: 1; padding: 9px; border: none; background: transparent;
+  font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.82rem;
+  color: var(--muted); cursor: pointer; border-radius: 7px; transition: all .2s;
+}
+.modal-tab.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+
+/* BUG03 FIX – estados visuais de validação */
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 10px 13px; font-family: 'Nunito Sans', sans-serif;
+  font-size: 0.9rem; color: var(--text); background: var(--white);
+  outline: none; transition: border-color .2s; width: 100%;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color: var(--primary); }
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+  border-color: var(--error);
+  background: #fff5f5;
+}
+.form-group .field-error {
+  font-size: 0.72rem; color: var(--error); font-weight: 600;
+  display: none; margin-top: 2px;
+}
+.form-group input.error ~ .field-error,
+.form-group select.error ~ .field-error,
+.form-group textarea.error ~ .field-error { display: block; }
+.form-group textarea { resize: vertical; min-height: 80px; }
+.modal-footer {
+  padding: 16px 24px; border-top: 1px solid var(--border);
+  display: flex; gap: 10px; justify-content: flex-end;
+}
+.btn-cancel {
+  padding: 10px 20px; border-radius: 8px;
+  border: 1.5px solid var(--border); background: var(--white);
+  font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.85rem;
+  color: var(--muted); cursor: pointer; transition: all .2s;
+}
+.btn-cancel:hover { border-color: var(--primary); color: var(--primary); }
+.btn-save {
+  padding: 10px 24px; border-radius: 8px;
+  background: var(--primary); border: none; color: #fff;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.85rem;
+  cursor: pointer; transition: all .2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.btn-save:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+/* ── DETAIL MODAL ── */
+.detail-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 300;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+.detail-modal-backdrop.open { opacity: 1; pointer-events: all; }
+.detail-modal {
+  background: var(--white); border-radius: 20px;
+  max-width: 500px; width: 100%;
+  max-height: 88vh; overflow-y: auto;
+  transform: scale(0.92) translateY(20px);
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+}
+.detail-modal-backdrop.open .detail-modal { transform: scale(1) translateY(0); }
+.detail-img {
+  width: 100%; height: 180px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 5rem; position: relative; border-radius: 20px 20px 0 0; overflow: hidden;
+}
+.detail-body { padding: 24px; }
+.detail-name {
+  font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1.4rem;
+  margin-bottom: 6px;
+}
+.detail-badges { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.detail-badge {
+  padding: 4px 12px; border-radius: 999px;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.72rem;
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.detail-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.detail-info-item label {
+  display: block; font-size: 0.72rem; font-weight: 700;
+  color: var(--muted); text-transform: uppercase; letter-spacing: .04em;
+  margin-bottom: 2px;
+}
+.detail-info-item span { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+.detail-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 20px; }
+.detail-footer { display: flex; gap: 10px; }
+.btn-contact {
+  flex: 1; padding: 11px; border-radius: 10px;
+  background: var(--primary); color: #fff; border: none;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.88rem;
+  cursor: pointer; transition: all .2s;
+}
+.btn-contact:hover { background: var(--primary-dark); }
+.btn-edit {
+  padding: 11px 20px; border-radius: 10px;
+  border: 1.5px solid var(--border); background: var(--white);
+  font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.88rem;
+  color: var(--muted); cursor: pointer; transition: all .2s;
+}
+.btn-edit:hover { border-color: var(--primary); color: var(--primary); }
+.btn-delete {
+  padding: 11px 16px; border-radius: 10px;
+  border: 1.5px solid #fecdd3; background: #fff5f5;
+  font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.88rem;
+  color: var(--error); cursor: pointer; transition: all .2s;
+}
+.btn-delete:hover { background: var(--error); color: #fff; border-color: var(--error); }
+
+/* ── EMPTY / LOAD ── */
+.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+.empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+.empty-state p { font-size: 0.9rem; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: #1a1a2e; color: #fff;
+  padding: 12px 24px; border-radius: 999px;
+  font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.88rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  z-index: 400; opacity: 0;
+  transition: all .35s cubic-bezier(.34,1.56,.64,1);
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+/* ── PAGINATION ── */
+.pagination {
+  display: flex; justify-content: center; gap: 6px;
+  margin-top: 40px; flex-wrap: wrap;
+}
+.page-btn {
+  width: 36px; height: 36px; border-radius: 8px;
+  border: 1.5px solid var(--border); background: var(--white);
+  font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.85rem;
+  color: var(--muted); cursor: pointer; transition: all .2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.page-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.page-btn:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+
+/* ── FAB ── */
+.fab {
+  position: fixed; bottom: 28px; right: 28px;
+  background: var(--primary); color: #fff;
+  width: 56px; height: 56px; border-radius: 50%;
+  border: none; font-size: 1.6rem; cursor: pointer;
+  box-shadow: 0 4px 20px rgba(232,64,106,0.4);
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s; z-index: 150;
+}
+.fab:hover { transform: scale(1.08) rotate(10deg); box-shadow: 0 8px 28px rgba(232,64,106,0.5); }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--white); border-top: 1px solid var(--border);
+  margin-top: 48px; padding: 28px 24px; text-align: center;
+}
+.footer-inner { max-width: 1200px; margin: 0 auto; }
+.footer-logo { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1.1rem; margin-bottom: 6px; }
+.footer-logo span { color: var(--primary); }
+footer p { color: var(--muted); font-size: 0.8rem; }
+.footer-tags { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+.ftag {
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--muted); padding: 3px 10px; border-radius: 6px; font-size: 0.74rem; font-weight: 600;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .header-search { display: none; }
+  .hero-banner h1 { font-size: 1rem; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-group.full { grid-column: 1; }
+  .pet-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  .pet-grid.list-view .pet-card { height: auto; flex-direction: column; }
+  .pet-grid.list-view .pet-card-img { width: 100%; aspect-ratio: 4/3; height: auto; border-radius: 0; }
+  .pet-grid.list-view .pet-card-footer { border-left: none; border-top: 1px solid var(--border); flex-direction: row; min-width: unset; }
+  .fab { bottom: 16px; right: 16px; }
+  .filter-bar { gap: 8px; }
+  .filter-selects { flex-wrap: wrap; }
+}
+
+/* ── ANIM ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.pet-card { animation: fadeUp .4s ease both; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon">🐾</div>
+      <span class="logo-text">Pet<span>Achado</span></span>
+    </a>
+    <!-- BUG06 FIX – busca real com evento input + tecla Enter -->
+    <div class="header-search">
+      <span class="search-icon" onclick="applyAllFilters()" title="Buscar">🔍</span>
+      <input type="text" id="search-input" placeholder="Buscar por nome, raça, bairro..." oninput="applyAllFilters()" onkeydown="if(event.key==='Enter') applyAllFilters()">
+    </div>
+    <!-- BUG06 FIX – botões do header filtram por status -->
+    <nav class="header-nav">
+      <button class="nav-btn nav-btn-ghost" id="btn-encontrados" onclick="filterByNavBtn('Encontrado', this)">Encontrados</button>
+      <button class="nav-btn nav-btn-ghost" id="btn-perdidos" onclick="filterByNavBtn('Perdido', this)">Perdidos</button>
+      <button class="nav-btn nav-btn-primary" onclick="openModal()">+ Cadastrar Pet</button>
+    </nav>
+  </div>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-inner">
+    <a href="#" onclick="limparFiltros();return false;">Home</a>
+    <span class="sep">›</span>
+    <a href="#" id="breadcrumb-city">Joinville/SC</a>
+    <span class="sep">›</span>
+    <span class="current" id="breadcrumb-status">Todos</span>
+  </div>
+</div>
+
+<!-- HERO BANNER -->
+<div class="hero-banner">
+  <div class="hero-banner-inner">
+    <h1>Animais <strong>Perdidos</strong> em <span id="hero-city">Joinville/SC</span></h1>
+    <!-- BUG04 FIX – modal de troca de cidade funcional -->
+    <button class="btn-trocar" onclick="openCityModal()">🗺️ Trocar Cidade</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-wrap">
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="filter-chips">
+      <!-- BUG01 FIX – chips organizados por grupo com exclusividade dentro de cada grupo -->
+      <div class="chip active" data-group="especie" data-value="all" onclick="toggleChip(this)">
+        <span class="chip-icon">🐾</span> Todos
+      </div>
+      <div class="chip" data-group="especie" data-value="cao" onclick="toggleChip(this)">
+        <span class="chip-icon">🐕</span> Cão
+      </div>
+      <div class="chip" data-group="especie" data-value="gato" onclick="toggleChip(this)">
+        <span class="chip-icon">🐈</span> Gato
+      </div>
+      <div class="chip" data-group="sexo" data-value="macho" onclick="toggleChip(this)">
+        <span class="chip-icon">♂</span> Macho
+      </div>
+      <div class="chip" data-group="sexo" data-value="femea" onclick="toggleChip(this)">
+        <span class="chip-icon">♀</span> Fêmea
+      </div>
+      <div class="chip" data-group="status" data-value="perdido" onclick="toggleChip(this)">
+        <span class="chip-icon">🔴</span> Perdido
+      </div>
+      <div class="chip" data-group="status" data-value="encontrado" onclick="toggleChip(this)">
+        <span class="chip-icon">🟢</span> Encontrado
+      </div>
+    </div>
+    <div class="filter-selects">
+      <!-- BUG02 FIX – selects conectados à função de filtro real -->
+      <select class="fsel" id="sel-porte" onchange="applyAllFilters()">
+        <option value="">Porte</option>
+        <option value="Pequeno">Pequeno</option>
+        <option value="Médio">Médio</option>
+        <option value="Grande">Grande</option>
+      </select>
+      <select class="fsel" id="sel-idade" onchange="applyAllFilters()">
+        <option value="">Idade</option>
+        <option value="filhote">Filhote</option>
+        <option value="jovem">Jovem (1 ano)</option>
+        <option value="adulto">Adulto (2-7 anos)</option>
+        <option value="idoso">Idoso (8+ anos)</option>
+      </select>
+      <button class="btn-filtrar" onclick="applyAllFilters()">Filtrar</button>
+      <button class="btn-limpar" onclick="limparFiltros()">Limpar</button>
+    </div>
+  </div>
+
+  <!-- RESULTS INFO -->
+  <div class="results-info">
+    <p class="results-count" id="results-count"><strong>12</strong> animais encontrados em Joinville/SC</p>
+    <!-- BUG05 FIX – toggles de view funcionais -->
+    <div class="view-toggle">
+      <button class="vtbtn active" id="btn-grid" title="Grade" onclick="setView('grid')">⊞</button>
+      <button class="vtbtn" id="btn-list" title="Lista" onclick="setView('list')">☰</button>
+    </div>
+  </div>
+
+  <!-- PET GRID -->
+  <div class="pet-grid" id="pet-grid"></div>
+
+  <!-- PAGINATION -->
+  <!-- BUG07 FIX – paginação gerada dinamicamente via JS -->
+  <div class="pagination" id="pagination"></div>
+</div>
+
+<!-- MODAL CADASTRO -->
+<div class="modal-backdrop" id="modal" onclick="closeModalBg(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">🐾 Cadastrar Animal Perdido</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <button class="modal-tab active" id="tab-btn-animal" onclick="switchTab('animal')">🐾 Dados do Animal</button>
+        <button class="modal-tab" id="tab-btn-tutor" onclick="switchTab('tutor')">👤 Dados do Tutor</button>
+      </div>
+
+      <div id="tab-animal">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nome *</label>
+            <!-- BUG03 FIX – campos com validação de tipagem e mensagens de erro -->
+            <input type="text" id="f-nome" placeholder="Ex: Thor" oninput="clearError(this)">
+            <span class="field-error">Nome é obrigatório.</span>
+          </div>
+          <div class="form-group">
+            <label>Espécie *</label>
+            <select id="f-especie" onchange="clearError(this)">
+              <option value="">Selecione</option>
+              <option value="🐕">Cachorro</option>
+              <option value="🐈">Gato</option>
+              <option value="🦜">Pássaro</option>
+              <option value="🐰">Coelho</option>
+              <option value="🐹">Hamster</option>
+              <option value="🐟">Peixe</option>
+            </select>
+            <span class="field-error">Espécie é obrigatória.</span>
+          </div>
+          <div class="form-group">
+            <label>Porte *</label>
+            <select id="f-porte" onchange="clearError(this)">
+              <option value="">Selecione</option>
+              <option>Pequeno</option>
+              <option>Médio</option>
+              <option>Grande</option>
+            </select>
+            <span class="field-error">Porte é obrigatório.</span>
+          </div>
+          <div class="form-group">
+            <label>Sexo</label>
+            <select id="f-sexo">
+              <option value="">Não sei</option>
+              <option>Macho</option>
+              <option>Fêmea</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Idade aproximada</label>
+            <input type="text" id="f-idade" placeholder="Ex: 2 anos">
+          </div>
+          <div class="form-group">
+            <label>Raça</label>
+            <input type="text" id="f-raca" placeholder="Ex: SRD, Labrador">
+          </div>
+          <div class="form-group">
+            <label>Cor / Pelagem *</label>
+            <input type="text" id="f-cor" placeholder="Ex: Caramelo, manchas" oninput="clearError(this)">
+            <span class="field-error">Cor/Pelagem é obrigatória.</span>
+          </div>
+          <div class="form-group">
+            <label>Status *</label>
+            <select id="f-status">
+              <option value="Perdido">Perdido</option>
+              <option value="Encontrado">Encontrado</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Último local visto *</label>
+            <input type="text" id="f-local" placeholder="Ex: Rua XV de Novembro, Centro, Joinville" oninput="clearError(this)">
+            <span class="field-error">Último local visto é obrigatório.</span>
+          </div>
+          <div class="form-group full">
+            <label>Descrição</label>
+            <textarea id="f-desc" placeholder="Características únicas, coleira, chip, comportamento..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-tutor" style="display:none">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Nome do tutor *</label>
+            <input type="text" id="f-tutor-nome" placeholder="Seu nome completo" oninput="clearError(this)" pattern="[A-Za-zÀ-ÿ\s]+">
+            <span class="field-error">Nome do tutor é obrigatório (apenas letras).</span>
+          </div>
+          <div class="form-group">
+            <label>Telefone *</label>
+            <!-- BUG03 FIX – máscara de telefone -->
+            <input type="tel" id="f-tutor-tel" placeholder="(47) 99999-9999" oninput="maskPhone(this); clearError(this)" maxlength="15">
+            <span class="field-error">Telefone inválido. Use: (XX) XXXXX-XXXX</span>
+          </div>
+          <div class="form-group">
+            <label>E-mail</label>
+            <!-- BUG03 FIX – validação de formato de e-mail -->
+            <input type="email" id="f-tutor-email" placeholder="contato@email.com" oninput="clearError(this)">
+            <span class="field-error">E-mail inválido.</span>
+          </div>
+          <div class="form-group full">
+            <label>Cidade / Bairro *</label>
+            <input type="text" id="f-tutor-cidade" placeholder="Ex: Joinville, SC" oninput="clearError(this)">
+            <span class="field-error">Cidade/Bairro é obrigatório.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="salvarPet()">💾 Salvar registro</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALHE DO PET (RF02 / RF05) -->
+<div class="detail-modal-backdrop" id="detail-modal" onclick="closeDetailModalBg(event)">
+  <div class="detail-modal" id="detail-modal-content"></div>
+</div>
+
+<!-- MODAL TROCA DE CIDADE (BUG04 FIX) -->
+<div class="city-modal-backdrop" id="city-modal" onclick="closeCityModalBg(event)">
+  <div class="city-modal">
+    <div class="city-modal-header">
+      <h3>🗺️ Trocar Cidade</h3>
+      <button class="modal-close" onclick="closeCityModal()">✕</button>
+    </div>
+    <div class="city-modal-body">
+      <label>Digite o nome da cidade</label>
+      <input type="text" id="city-input" placeholder="Ex: Florianópolis, SC" onkeydown="if(event.key==='Enter') confirmCity()">
+      <div class="city-presets">
+        <button class="city-preset-btn" onclick="setCity('Joinville/SC')">Joinville/SC</button>
+        <button class="city-preset-btn" onclick="setCity('Florianópolis/SC')">Florianópolis/SC</button>
+        <button class="city-preset-btn" onclick="setCity('Blumenau/SC')">Blumenau/SC</button>
+        <button class="city-preset-btn" onclick="setCity('Curitiba/PR')">Curitiba/PR</button>
+        <button class="city-preset-btn" onclick="setCity('São Paulo/SP')">São Paulo/SP</button>
+      </div>
+    </div>
+    <div class="city-modal-footer">
+      <button class="btn-cancel" onclick="closeCityModal()">Cancelar</button>
+      <button class="btn-save" onclick="confirmCity()">✅ Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openModal()" title="Cadastrar animal">+</button>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">🐾 Pet<span>Achado</span></div>
+    <p>Universidade da Região de Joinville · Testes de Software 2 · Maio 2026</p>
+    <p style="margin-top:4px;font-size:0.75rem">Bugs BUG01–BUG07 corrigidos conforme relatório da Equipe do Otávio</p>
+    <div class="footer-tags">
+      <span class="ftag">Vue.js</span>
+      <span class="ftag">Java</span>
+      <span class="ftag">RF01–RF05</span>
+      <span class="ftag">RNF01–RNF05</span>
+      <span class="ftag">QA: Kaio Henrique</span>
+      <span class="ftag">PO: Gustavo Alexandre</span>
+    </div>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──
+const BG_COLORS = ['bg-warm','bg-rose','bg-sky','bg-mint','bg-lavender','bg-peach','bg-gray','bg-blue'];
+const ITEMS_PER_PAGE = 8;
+let currentPage = 1;
+let currentView = 'grid';
+let currentCity = 'Joinville/SC';
+let navStatusFilter = ''; // BUG06: filtro de status do header
+
+let pets = [
+  { id:1, nome:'Rex', especie:'🐕', raca:'SRD', porte:'Médio', sexo:'Macho', idade:'2 anos', idadeNum:2, cor:'Caramelo', status:'Perdido', local:'Centro, Joinville', desc:'Cachorro muito dócil, carente e sociável. Ele precisa de cuidados especiais e um lar amoroso. Salve uma vida!', bg:'bg-warm', novo:true },
+  { id:2, nome:'Bolinha', especie:'🐕', raca:'SRD', porte:'Médio', sexo:'Macho', idade:'1 ano', idadeNum:1, cor:'Preto e branco', status:'Encontrado', local:'Bairro América, Joinville', desc:'Um cachorro SRD de 1 ano, castrado e sociável. Ele é dócil, calmo e brincalhão. Dê uma chance a esse amigo carente.', bg:'bg-gray' },
+  { id:3, nome:'Chica', especie:'🐈', raca:'SRD', porte:'Médio', sexo:'Fêmea', idade:'4 meses', idadeNum:0, cor:'Bege', status:'Perdido', local:'Bom Retiro, Joinville', desc:'A adorável Chica, uma gatinha SRD dócil e brincalhona. Perfeita para famílias, ela merece um lar seguro e cheio de amor.', bg:'bg-rose' },
+  { id:4, nome:'Princesa', especie:'🐕', raca:'SRD', porte:'Pequeno', sexo:'Fêmea', idade:'3 anos', idadeNum:3, cor:'Preta', status:'Encontrado', local:'Glória, Joinville', desc:'Ajude a encontrar a cãezinha Princesa, uma adorável SRD de 3 anos. Ela é carinhosa e merece voltar para casa!', bg:'bg-lavender' },
+  { id:5, nome:'Neguinho', especie:'🐕', raca:'SRD', porte:'Grande', sexo:'Macho', idade:'3 anos', idadeNum:3, cor:'Preto', status:'Perdido', local:'Aventureiro, Joinville', desc:'Cachorro de grande porte, preto, muito amigável. Fugiu durante temporal. Recompensa para quem encontrar.', bg:'bg-sky', novo:true },
+  { id:6, nome:'Thor', especie:'🐕', raca:'SRD', porte:'Médio', sexo:'Macho', idade:'1 ano', idadeNum:1, cor:'Preto', status:'Encontrado', local:'São Marcos, Joinville', desc:'Cachorro encontrado em 20/01 nas mediações da Rua Tupy, bairro São Marcos, por volta das 08hrs da manhã.', bg:'bg-blue' },
+  { id:7, nome:'Faraó', especie:'🐕', raca:'SRD', porte:'Médio', sexo:'Macho', idade:'9 meses', idadeNum:0, cor:'Marrom', status:'Perdido', local:'Iririú, Joinville', desc:'Filhote ativo e brincalhão, foi visto pela última vez na Rua Tuiuti. Usa coleira verde com plaquinha.', bg:'bg-peach' },
+  { id:8, nome:'Luna', especie:'🐈', raca:'Siamês', porte:'Pequeno', sexo:'Fêmea', idade:'1 ano', idadeNum:1, cor:'Creme e marrom', status:'Perdido', local:'Costa e Silva, Joinville', desc:'Gata siamesa muito carinhosa, fugiu pela janela. Usa coleira rosa com sininho. Muito apegada à família.', bg:'bg-mint', novo:true },
+  { id:9, nome:'Bob', especie:'🐕', raca:'Labrador', porte:'Grande', sexo:'Macho', idade:'4 anos', idadeNum:4, cor:'Dourado', status:'Encontrado', local:'Itaum, Joinville', desc:'Labrador dourado encontrado sem coleira, muito dócil e bem cuidado. Provavelmente fugiu de casa recentemente.', bg:'bg-warm' },
+  { id:10, nome:'Pipoca', especie:'🦜', raca:'Calopsita', porte:'Pequeno', sexo:'Fêmea', idade:'2 anos', idadeNum:2, cor:'Cinza e amarelo', status:'Perdido', local:'Floresta, Joinville', desc:'Calopsita cinza com crista amarela, fala algumas palavras. Escapou durante abertura de janela.', bg:'bg-sky' },
+  { id:11, nome:'Mingau', especie:'🐈', raca:'Vira-lata', porte:'Médio', sexo:'Macho', idade:'3 anos', idadeNum:3, cor:'Listrado', status:'Perdido', local:'Bucarein, Joinville', desc:'Gato listrado cinza e preto, muito medroso com estranhos. Microchipado. Recompensa garantida.', bg:'bg-gray', novo:true },
+  { id:12, nome:'Mel', especie:'🐕', raca:'Poodle', porte:'Pequeno', sexo:'Fêmea', idade:'5 anos', idadeNum:5, cor:'Branca', status:'Encontrado', local:'Anita Garibaldi, Joinville', desc:'Poodle branca muito bem cuidada e educada. Encontrada próxima à praça. Aguarda o tutor.', bg:'bg-rose' },
+];
+
+let filteredPets = [...pets];
+let liked = new Set();
+
+// ── BUG05 FIX – toggles de view ──
+function setView(v) {
+  currentView = v;
+  const grid = document.getElementById('pet-grid');
+  const btnGrid = document.getElementById('btn-grid');
+  const btnList = document.getElementById('btn-list');
+  if (v === 'list') {
+    grid.classList.add('list-view');
+    btnList.classList.add('active');
+    btnGrid.classList.remove('active');
+  } else {
+    grid.classList.remove('list-view');
+    btnGrid.classList.add('active');
+    btnList.classList.remove('active');
+  }
+}
+
+// ── BUG07 FIX – paginação dinâmica ──
+function renderPagination(totalItems) {
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const container = document.getElementById('pagination');
+  if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+  let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled style="opacity:.4;cursor:default"':''}>‹</button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled style="opacity:.4;cursor:default"':''}>›</button>`;
+  container.innerHTML = html;
+}
+
+function goPage(p) {
+  const totalPages = Math.ceil(filteredPets.length / ITEMS_PER_PAGE);
+  if (p < 1 || p > totalPages) return;
+  currentPage = p;
+  renderPets(filteredPets);
+}
+
+// ── RENDER ──
+function renderPets(list) {
+  const grid = document.getElementById('pet-grid');
+  const start = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginated = list.slice(start, start + ITEMS_PER_PAGE);
+
+  document.getElementById('results-count').innerHTML =
+    `<strong>${list.length}</strong> animais encontrados em ${currentCity}`;
+
+  if (list.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="icon">🔍</div>
+      <p>Nenhum animal encontrado com esses filtros.</p>
+    </div>`;
+    renderPagination(0);
+    return;
+  }
+
+  grid.innerHTML = paginated.map((p, i) => `
+    <div class="pet-card" style="animation-delay:${i*50}ms" onclick="viewPet(${p.id})">
+      <div class="pet-card-img ${p.bg}">
+        <span class="pet-emoji">${p.especie}</span>
+        <span class="badge-status ${p.status === 'Perdido' ? 'badge-lost' : 'badge-found'}">${p.status}</span>
+        ${p.novo ? `<span class="badge-new">Novo</span>` : ''}
+        <button class="heart-btn ${liked.has(p.id)?'liked':''}" onclick="toggleLike(event,${p.id})" title="Favoritar">
+          ${liked.has(p.id) ? '❤️' : '🤍'}
+        </button>
+      </div>
+      <div class="pet-card-body">
+        <div class="pet-card-name">${p.nome}</div>
+        <div class="pet-card-meta">
+          ${p.porte} <span class="meta-sep">|</span>
+          ${p.sexo || 'N/I'} <span class="meta-sep">|</span>
+          ${p.idade}
+        </div>
+        <div class="pet-card-desc">${p.desc}</div>
+      </div>
+      <div class="pet-card-footer">
+        <span class="pet-location">📍 ${p.local}</span>
+        <button class="btn-ver">Ver mais</button>
+      </div>
+    </div>
+  `).join('');
+
+  renderPagination(list.length);
+}
+
+// ── DETALHE DO PET (RF02 / RF05) ──
+function viewPet(id) {
+  const p = pets.find(x => x.id === id);
+  if (!p) return;
+  const content = document.getElementById('detail-modal-content');
+  content.innerHTML = `
+    <div class="detail-img ${p.bg}">
+      <span style="font-size:5rem">${p.especie}</span>
+      <span class="badge-status ${p.status==='Perdido'?'badge-lost':'badge-found'}" style="position:absolute;top:12px;left:12px">${p.status}</span>
+      <button class="modal-close" onclick="closeDetailModal()" style="position:absolute;top:12px;right:12px">✕</button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-name">${p.nome}</div>
+      <div class="detail-badges">
+        <span class="detail-badge ${p.status==='Perdido'?'badge-lost':'badge-found'}">${p.status}</span>
+        ${p.novo ? `<span class="detail-badge" style="background:#fce7f3;color:#be185d">Novo</span>` : ''}
+      </div>
+      <div class="detail-info">
+        <div class="detail-info-item"><label>Espécie</label><span>${p.raca}</span></div>
+        <div class="detail-info-item"><label>Porte</label><span>${p.porte}</span></div>
+        <div class="detail-info-item"><label>Sexo</label><span>${p.sexo || 'Não informado'}</span></div>
+        <div class="detail-info-item"><label>Idade</label><span>${p.idade}</span></div>
+        <div class="detail-info-item"><label>Cor / Pelagem</label><span>${p.cor}</span></div>
+        <div class="detail-info-item"><label>Último local</label><span>${p.local}</span></div>
+      </div>
+      <div class="detail-desc">${p.desc}</div>
+      <div class="detail-footer">
+        <button class="btn-contact" onclick="showToast('📞 Abrindo contato com o tutor...');closeDetailModal()">📞 Entrar em contato</button>
+        <button class="btn-edit" onclick="editPet(${p.id})">✏️ Editar</button>
+        <button class="btn-delete" onclick="deletePet(${p.id})">🗑️</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('detail-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetailModal() {
+  document.getElementById('detail-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeDetailModalBg(e) {
+  if (e.target === document.getElementById('detail-modal')) closeDetailModal();
+}
+
+// ── RF02 – EXCLUIR ──
+function deletePet(id) {
+  const p = pets.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`Confirmar exclusão de "${p.nome}"?`)) return;
+  pets = pets.filter(x => x.id !== id);
+  currentPage = 1;
+  applyAllFilters();
+  closeDetailModal();
+  showToast(`🗑️ ${p.nome} removido com sucesso.`);
+}
+
+// ── RF05 – EDITAR ──
+function editPet(id) {
+  const p = pets.find(x => x.id === id);
+  if (!p) return;
+  closeDetailModal();
+  openModal();
+  setTimeout(() => {
+    document.getElementById('f-nome').value = p.nome;
+    document.getElementById('f-especie').value = p.especie;
+    document.getElementById('f-porte').value = p.porte;
+    document.getElementById('f-sexo').value = p.sexo || '';
+    document.getElementById('f-idade').value = p.idade;
+    document.getElementById('f-raca').value = p.raca;
+    document.getElementById('f-cor').value = p.cor;
+    document.getElementById('f-status').value = p.status;
+    document.getElementById('f-local').value = p.local;
+    document.getElementById('f-desc').value = p.desc;
+    // marca como edição
+    document.querySelector('.modal-title').textContent = `✏️ Editar: ${p.nome}`;
+    document.querySelector('.btn-save').setAttribute('data-edit-id', id);
+    document.querySelector('.btn-save').textContent = '💾 Atualizar registro';
+  }, 100);
+}
+
+function toggleLike(e, id) {
+  e.stopPropagation();
+  if (liked.has(id)) { liked.delete(id); showToast('💔 Removido dos favoritos'); }
+  else { liked.add(id); showToast('❤️ Adicionado aos favoritos!'); }
+  renderPets(filteredPets);
+}
+
+// ── BUG01 FIX – CHIPS com exclusividade por grupo ──
+function toggleChip(el) {
+  const group = el.dataset.group;
+  const val = el.dataset.value;
+
+  if (group === 'especie') {
+    // chips de espécie: só um ativo por vez (inclui "Todos")
+    document.querySelectorAll(`.chip[data-group="especie"]`).forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  } else {
+    // chips de sexo e status: toggle individual (podem ser desativados)
+    el.classList.toggle('active');
+  }
+  applyAllFilters();
+}
+
+// ── BUG06 FIX – botões do header filtram por status ──
+function filterByNavBtn(status, btn) {
+  const btns = document.querySelectorAll('.nav-btn-ghost');
+  if (navStatusFilter === status) {
+    // clicou de novo: remove filtro
+    navStatusFilter = '';
+    btns.forEach(b => b.classList.remove('active'));
+  } else {
+    navStatusFilter = status;
+    btns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  // sincroniza breadcrumb
+  document.getElementById('breadcrumb-status').textContent = navStatusFilter || 'Todos';
+  applyAllFilters();
+}
+
+// ── BUG02 + BUG06 FIX – FILTRO UNIFICADO ──
+function applyAllFilters() {
+  const searchTerm = (document.getElementById('search-input').value || '').trim().toLowerCase();
+  const porteVal = document.getElementById('sel-porte').value;
+  const idadeVal = document.getElementById('sel-idade').value;
+
+  const especieChip = document.querySelector('.chip[data-group="especie"].active');
+  const especieVal = especieChip ? especieChip.dataset.value : 'all';
+
+  const sexoChips = [...document.querySelectorAll('.chip[data-group="sexo"].active')].map(c => c.dataset.value);
+  const statusChips = [...document.querySelectorAll('.chip[data-group="status"].active')].map(c => c.dataset.value);
+
+  filteredPets = pets.filter(p => {
+    // Busca textual (BUG06)
+    if (searchTerm) {
+      const haystack = (p.nome + p.raca + p.local + p.cor + p.desc).toLowerCase();
+      if (!haystack.includes(searchTerm)) return false;
+    }
+
+    // Espécie
+    if (especieVal === 'cao' && p.especie !== '🐕') return false;
+    if (especieVal === 'gato' && p.especie !== '🐈') return false;
+
+    // Sexo
+    if (sexoChips.length > 0) {
+      const match = sexoChips.some(s => {
+        if (s === 'macho') return p.sexo === 'Macho';
+        if (s === 'femea') return p.sexo === 'Fêmea';
+        return true;
+      });
+      if (!match) return false;
+    }
+
+    // Status (chips)
+    if (statusChips.length > 0) {
+      const match = statusChips.some(s => {
+        if (s === 'perdido') return p.status === 'Perdido';
+        if (s === 'encontrado') return p.status === 'Encontrado';
+        return true;
+      });
+      if (!match) return false;
+    }
+
+    // Status (botões header - BUG06)
+    if (navStatusFilter && p.status !== navStatusFilter) return false;
+
+    // BUG02 FIX – Porte
+    if (porteVal && p.porte !== porteVal) return false;
+
+    // BUG02 FIX – Idade (aproximada por número)
+    if (idadeVal) {
+      const n = p.idadeNum;
+      if (idadeVal === 'filhote' && n >= 1) return false;
+      if (idadeVal === 'jovem' && n !== 1) return false;
+      if (idadeVal === 'adulto' && (n < 2 || n > 7)) return false;
+      if (idadeVal === 'idoso' && n < 8) return false;
+    }
+
+    return true;
+  });
+
+  currentPage = 1;
+  renderPets(filteredPets);
+}
+
+function limparFiltros() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('sel-porte').value = '';
+  document.getElementById('sel-idade').value = '';
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('.chip[data-value="all"]').classList.add('active');
+  navStatusFilter = '';
+  document.querySelectorAll('.nav-btn-ghost').forEach(b => b.classList.remove('active'));
+  document.getElementById('breadcrumb-status').textContent = 'Todos';
+  filteredPets = [...pets];
+  currentPage = 1;
+  renderPets(filteredPets);
+  showToast('🔄 Filtros limpos');
+}
+
+// ── MODAL CADASTRO ──
+function openModal() {
+  // reset modo edição
+  document.querySelector('.modal-title').textContent = '🐾 Cadastrar Animal Perdido';
+  const btnSave = document.querySelector('.btn-save');
+  btnSave.removeAttribute('data-edit-id');
+  btnSave.innerHTML = '💾 Salvar registro';
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  switchTab('animal');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeModalBg(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+}
+
+function switchTab(tab) {
+  document.getElementById('tab-animal').style.display = tab === 'animal' ? '' : 'none';
+  document.getElementById('tab-tutor').style.display = tab === 'tutor' ? '' : 'none';
+  document.getElementById('tab-btn-animal').classList.toggle('active', tab === 'animal');
+  document.getElementById('tab-btn-tutor').classList.toggle('active', tab === 'tutor');
+}
+
+// ── BUG03 FIX – VALIDAÇÃO DE TIPAGEM ──
+function clearError(el) { el.classList.remove('error'); }
+
+function setError(id) {
+  const el = document.getElementById(id);
+  el.classList.add('error');
+  return false;
+}
+
+function maskPhone(el) {
+  let v = el.value.replace(/\D/g, '');
+  if (v.length > 11) v = v.slice(0, 11);
+  if (v.length > 6) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+  else if (v.length > 2) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+  else if (v.length > 0) v = `(${v}`;
+  el.value = v;
+}
+
+function validatePhone(val) {
+  return /^\(\d{2}\) \d{4,5}-\d{4}$/.test(val);
+}
+function validateEmail(val) {
+  if (!val) return true; // opcional
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+}
+
+// ── SALVAR / ATUALIZAR (RF01, RF04, RF05, RN01) ──
+function salvarPet() {
+  const nome = document.getElementById('f-nome').value.trim();
+  const especie = document.getElementById('f-especie').value;
+  const porte = document.getElementById('f-porte').value;
+  const cor = document.getElementById('f-cor').value.trim();
+  const local = document.getElementById('f-local').value.trim();
+  const tutorNome = document.getElementById('f-tutor-nome').value.trim();
+  const tutorTel = document.getElementById('f-tutor-tel').value.trim();
+  const tutorEmail = document.getElementById('f-tutor-email').value.trim();
+  const tutorCidade = document.getElementById('f-tutor-cidade').value.trim();
+
+  // Limpa erros anteriores
+  document.querySelectorAll('.form-group input, .form-group select, .form-group textarea')
+    .forEach(el => el.classList.remove('error'));
+
+  let hasAnimalError = false;
+  if (!nome) { setError('f-nome'); hasAnimalError = true; }
+  if (!especie) { setError('f-especie'); hasAnimalError = true; }
+  if (!porte) { setError('f-porte'); hasAnimalError = true; }
+  if (!cor) { setError('f-cor'); hasAnimalError = true; }
+  if (!local) { setError('f-local'); hasAnimalError = true; }
+  if (hasAnimalError) {
+    switchTab('animal');
+    showToast('⚠️ Corrija os campos obrigatórios do animal.');
+    return;
+  }
+
+  let hasTutorError = false;
+  if (!tutorNome) { setError('f-tutor-nome'); hasTutorError = true; }
+  if (!tutorTel || !validatePhone(tutorTel)) { setError('f-tutor-tel'); hasTutorError = true; }
+  if (!validateEmail(tutorEmail)) { setError('f-tutor-email'); hasTutorError = true; }
+  if (!tutorCidade) { setError('f-tutor-cidade'); hasTutorError = true; }
+  if (hasTutorError) {
+    switchTab('tutor');
+    showToast('⚠️ Corrija os campos obrigatórios do tutor.');
+    return;
+  }
+
+  const raca = document.getElementById('f-raca').value.trim() || 'SRD';
+  const sexo = document.getElementById('f-sexo').value || 'Não informado';
+  const idadeStr = document.getElementById('f-idade').value.trim() || 'Não informado';
+  const desc = document.getElementById('f-desc').value.trim() || `${nome} aguarda contato. Local: ${local}.`;
+  const status = document.getElementById('f-status').value;
+  const bg = BG_COLORS[Math.floor(Math.random() * BG_COLORS.length)];
+
+  // extrai número de idade para filtro
+  const idadeMatch = idadeStr.match(/(\d+)/);
+  const idadeNum = idadeMatch ? parseInt(idadeMatch[1]) : 0;
+
+  const editId = document.querySelector('.btn-save').getAttribute('data-edit-id');
+  if (editId) {
+    // RF05 – Atualizar
+    const idx = pets.findIndex(x => x.id === parseInt(editId));
+    if (idx !== -1) {
+      pets[idx] = { ...pets[idx], nome, especie, raca, porte, sexo, idade: idadeStr, idadeNum, cor, status, local, desc };
+      showToast(`✅ ${nome} atualizado com sucesso!`);
+    }
+  } else {
+    // RF01 – Cadastrar
+    const newPet = { id: Date.now(), nome, especie, raca, porte, sexo, idade: idadeStr, idadeNum, cor, status, local, desc, bg, novo: true };
+    pets.unshift(newPet);
+    showToast(`✅ ${nome} cadastrado com sucesso!`);
+  }
+
+  applyAllFilters();
+  closeModal();
+
+  // Reset form
+  document.querySelectorAll('#tab-animal input, #tab-animal select, #tab-animal textarea, #tab-tutor input').forEach(el => el.value = '');
+}
+
+// ── BUG04 FIX – MODAL TROCA DE CIDADE ──
+function openCityModal() {
+  document.getElementById('city-input').value = '';
+  document.getElementById('city-modal').classList.add('open');
+}
+function closeCityModal() {
+  document.getElementById('city-modal').classList.remove('open');
+}
+function closeCityModalBg(e) {
+  if (e.target === document.getElementById('city-modal')) closeCityModal();
+}
+function setCity(city) {
+  document.getElementById('city-input').value = city;
+}
+function confirmCity() {
+  const val = document.getElementById('city-input').value.trim();
+  if (!val) { showToast('⚠️ Digite o nome da cidade.'); return; }
+  currentCity = val;
+  document.getElementById('hero-city').textContent = val;
+  document.getElementById('breadcrumb-city').textContent = val;
+  closeCityModal();
+  showToast(`🗺️ Cidade alterada para ${val}`);
+  applyAllFilters();
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── INIT ──
+renderPets(pets);
+</script>
+</body>
+</html>
